@@ -1,0 +1,39 @@
+---
+title: "Assignment 1"
+author: "Garren Kalter"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Assignment1}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo=FALSE}
+library(gbk346)
+```
+
+```{r}
+#' A Squirrel Function
+#' @description This function allows you to express your admiration of squirrels
+#' @param admire Do you admire squirrels? Defaults to TRUE.
+#' @export
+#' @examples
+#' squirrel_function()
+squirrel_function <- function(admire = TRUE) {
+  if(admire == TRUE){
+    print("I strongly admire squirrels!")
+  } else {
+    print("I do not belong to the squirrel fan club.")
+  }
+}
+```
+
+The above function is designed to demonstrate how functions work using one's admiration of squirrels as a stand in. In layman's terms this function performs a basic "if then" logic statement. When running the function, it should prompt you, if you admire squirrels. If true then it should print "I strongly admire squirrels!" otherwise it will print "I do not belong to the squirrel fan club."
+
