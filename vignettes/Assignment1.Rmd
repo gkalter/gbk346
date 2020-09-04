@@ -35,5 +35,5 @@ squirrel_function <- function(admire = TRUE) {
 }
 ```
 
-The above function is designed to demonstrate how functions work using one's admiration of squirrels as a stand in. In layman's terms this function performs a basic "if then" logic statement. When running the function, it should prompt you, if you admire squirrels. If true then it should print "I strongly admire squirrels!" otherwise it will print "I do not belong to the squirrel fan club."
+The above function is designed to demonstrate how functions work using one's admiration of squirrels as a stand in. In layman's terms this function performs a basic "if then" logic statement. When running the function, it should prompt you if you admire squirrels. If TRUE then it should print "I strongly admire squirrels!" otherwise it will print "I do not belong to the squirrel fan club."
 
