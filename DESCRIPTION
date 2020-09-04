@@ -1,11 +1,11 @@
 Package: gbk346
 Title: Geography 346
-Version: 0.0.0.9000
-Authors@R: Garren Kalter
-    person(given = "First",
-           family = "Last",
-           role = c("aut", "cre"),
-           email = "first.last@example.com",
+Version: 0.0.1.9000
+Authors@R: 
+    person(given = "Garren",
+           family = "Kalter",
+           role = c("cre"),
+           email = "garrenkalter@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: This is where I will learn to use R. 
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
