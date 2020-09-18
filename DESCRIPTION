@@ -1,13 +1,13 @@
 Package: gbk346
 Title: Geography 346
-Version: 0.0.1.9000
+Version: 0.1.0
 Authors@R: 
     person(given = "Garren",
            family = "Kalter",
            role = c("cre"),
            email = "garrenkalter@gmail.com",
            comment = c(ORCID = "YOUR-ORCID-ID"))
-Description: This is where I will learn to use R. 
+Description: This is where I will learn to use R. It includes two functions (squirrel and mycalc)
 License: `use_mit_license()`, `use_gpl3_license()` or friends to
     pick a license
 Encoding: UTF-8
