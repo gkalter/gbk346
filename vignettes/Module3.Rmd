@@ -14,6 +14,97 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, echo=FALSE}
 library(gbk346)
 ```
+
+
+```{r}
+mycalc_function <- function(x, y, fun) {
+  if(fun == "sum") {
+    o <- (x + y)
+  } else if(fun == "substract") {
+    o <- (x - y)
+  } else if(fun == "multiply") {
+    o <- (x * y)
+  } else if(fun == "divide") {
+    o <- (x / y)
+  } else {
+    o <- paste("Not a recognized function")
+  }
+  return(o)
+}
+```
+
+##Creating Vectors
+  -The following are vectors which will later be used later to test the mycalc_function.
+```{r, echo=TRUE}
+#a is the length of several vectors this is used as a hold over
+a = 20
+
+#v1
+set.seed(1)
+v1 <- sample(x = 1:100, size = a, replace = TRUE)
+
+set.seed(1)
+v2 <- sample(x = 1:10, size = a, replace = TRUE)
+
+set.seed(1)
+v3 <- runif(20, min = 0, max = 1)
+
+v4 <- sample(x = LETTERS[v2], size = 20, replace = TRUE) 
+
+```
+
+##Creating Matrices
+  -The following are matrices which will later be used to test the mycalc_function.
+```{r}
+m1 <- cbind(v1, v2)
+m2 <- cbind(v2, v3)
+m3 <- cbind(v3, v4)
+```
+
+## Creating Dataframes
+  -The following is a dataframe which will later be used to test the mycalc_function.
+```{r}
+DF <- data.frame(v1, v2, v3, v4)
+colnames(DF) <- c("a", "b", "c", "grp")
+
+```
+
+
+## Calculations 
+  - The following are various different trial runs of the  mycalc_function.
+
+```{r, error= TRUE}
+s1 <- mycalc_function(v1, v2, "sum")
+d1 <- mycalc_function(v1, v2, "divide")
+s2 <- mycalc_function(v2, v3, "sum")
+d2 <- mycalc_function(v2, v3, "divide")
+s3 <- mycalc_function(v1, v3, "sum")
+d3 <- mycalc_function(v1, v3, "divide")
+s4 <- mycalc_function(m1, m1, "sum")
+d4 <- mycalc_function(m1, m1, "divide")
+s5 <- mycalc_function(m1, m2, "sum")
+d5 <- mycalc_function(m1, m2, "divide")
+s6 <- mycalc_function(m2, m3, "sum")
+d6 <- mycalc_function(m2, m3, "divide")
+```
+
+## More Calculations
+
+```{r, error= TRUE}
+b1 <- mycalc_function(DF[1,1], DF[1,2], "multiply")
+b2 <- mycalc_function(DF[1:10, 1:3], DF[1:10, 1:3], "multiply")
+b3 <- mycalc_function(DF[DF$grp == "E", c("a", "b")], DF[DF$grp == "E", c("c")], "divide")
+b4 <- (DF[1,1] * DF[1,2])
+b5 <- DF[1:10, 1:3] * DF[1:10, 1:3]
+b6 <- DF[DF$grp == "E", c("a", "b")] / DF[DF$grp == "E", c("c")] 
+```
+
+```{r, error= TRUE}
+l <- list(v1, m1, m2)
+myfunc <- lapply(1:length(l), function(x) mycalc_function(l[[x]], v2, "multiply"))
+myfunc_2 <- sapply(1:length(l), function(x) mycalc_function(l[[x]], v2, "multiply"))
+```
+
