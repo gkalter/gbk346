@@ -45,6 +45,7 @@ mycalc_function <- function(x, y, fun) {
 
 ## Creating Vectors
   -The following are vectors which will later be used later to test the mycalc_function.
+  
 ```{r, echo=TRUE, error=TRUE}
 #a is the length of several vectors thus it will be used as a place holder
 a = 20
@@ -68,6 +69,7 @@ v4
 
 ## Creating Matrices
   -The following are matrices which will later be used to test the mycalc_function.
+  
 ```{r, error=TRUE}
 m1 <- cbind(v1, v2)
 m1
@@ -98,7 +100,7 @@ DF
   -Question: why is it okay to rename a column in DF “c”, but not to rename v3 that name?
   
   - In a very similar vein, one can not assign "c" as the name of a vector because it will prevent the 
-  proper functioning of the combine function in the local environment. However, by using 
+  proper functioning of the cocatenate function in the local environment. However, by using 
   colnames one can assign the column a name without interfering with the function.
   
 ```{r, error=TRUE}
@@ -107,7 +109,7 @@ str(DF)
 ```
   
 My "grp" should have been a factor but is in fact a character. If it had been a factor,
-I could change it to character by using stringsAsFactors = FALSE or use the as.character function. 
+I could change it to character by using stringsAsFactors = FALSE or use the as.character() function. 
 
 
 ## Calculations 
