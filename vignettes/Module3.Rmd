@@ -107,7 +107,7 @@ str(DF)
 ```
   
 My "grp" should have been a factor but is in fact a character. If it had been a factor,
-I could change it to character by using stringsAsFactors = FALSE. 
+I could change it to character by using stringsAsFactors = FALSE or use the as.character function. 
 
 
 ## Calculations 
@@ -208,6 +208,7 @@ Apply functions are specialized for loops. Thus, they apply a function to each e
 l <- list(v1, m1, m2)
 l
 
+#a is used for apply
 a1 <- lapply(l, sum)
 a1
 
