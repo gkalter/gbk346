@@ -17,9 +17,16 @@ knitr::opts_chunk$set(
 ```{r setup, echo=FALSE}
 library(gbk346)
 ```
+This is a vignette explaining how to use the mycalc_functon. The mycalc_function featured below is a basic calculator which adds, subtracts, multiplies, and divides. As observed below it takes two inputs (x & y) which can be numbers (integer or non), vectors, matrices, dataframes or a combination of the aforementioned. 
+
+```{r, eval=FALSE}
+# this is the function.  Enter inputs in x and y. Then choose "sum", "subtract", 
+# "multiply" or "divide"
+mycalc_function <- function(x, y, fun)
+```
 
 
-```{r}
+```{r, echo=FALSE, error =TRUE}
 mycalc_function <- function(x, y, fun) {
   if(fun == "sum") {
     o <- (x + y)
@@ -36,75 +43,180 @@ mycalc_function <- function(x, y, fun) {
 }
 ```
 
-##Creating Vectors
+## Creating Vectors
   -The following are vectors which will later be used later to test the mycalc_function.
-```{r, echo=TRUE}
-#a is the length of several vectors this is used as a hold over
+```{r, echo=TRUE, error=TRUE}
+#a is the length of several vectors thus it will be used as a place holder
 a = 20
 
 #v1
 set.seed(1)
 v1 <- sample(x = 1:100, size = a, replace = TRUE)
+v1
 
 set.seed(1)
 v2 <- sample(x = 1:10, size = a, replace = TRUE)
+v2
 
 set.seed(1)
 v3 <- runif(20, min = 0, max = 1)
+v3
 
 v4 <- sample(x = LETTERS[v2], size = 20, replace = TRUE) 
-
+v4
 ```
 
-##Creating Matrices
+## Creating Matrices
   -The following are matrices which will later be used to test the mycalc_function.
-```{r}
+```{r, error=TRUE}
 m1 <- cbind(v1, v2)
+m1
+
 m2 <- cbind(v2, v3)
+m2
+
 m3 <- cbind(v3, v4)
+m3
 ```
 
-## Creating Dataframes
+## Creating Dataframes 
   -The following is a dataframe which will later be used to test the mycalc_function.
-```{r}
+  
+```{r, error=TRUE}
 DF <- data.frame(v1, v2, v3, v4)
 colnames(DF) <- c("a", "b", "c", "grp")
+DF
+```
+
+## Relevant Questions on Naming Conventions
+
+ -Question: why shouldn’t you use the name “df” to name this object?
+  
+  - One should not use the name "df" because it will prevent you from calling dataframes 
+    in the local environment
+    
+  -Question: why is it okay to rename a column in DF “c”, but not to rename v3 that name?
+  
+  - In a very similar vein, one can not assign "c" as the name of a vector because it will prevent the 
+  proper functioning of the combine function in the local environment. However, by using 
+  colnames one can assign the column a name without interfering with the function.
+  
+```{r, error=TRUE}
+str(DF)
 
 ```
+  
+My "grp" should have been a factor but is in fact a character. If it had been a factor,
+I could change it to character by using stringsAsFactors = FALSE. 
 
 
 ## Calculations 
-  - The following are various different trial runs of the  mycalc_function.
+  - The following are various trial runs that demonstrate the mycalc_function. 
+  
+    - s1 through s3 highlight how the sum function outputs with various arithmetic vectors.
+  
+    - d1 through d3 highlight how the divide function outputs with various arithmetic vectors
+  
+    - s4 through s6 highlight how the sum function outputs with matrices
+  
+    - d4 through d6 highlights how the divide function outputs with matrices
+  
+    - For both s6 and d6 one will find an error message below, This is intentional as it is impossible to complete arithmetic calculation with characters such as letters.
 
 ```{r, error= TRUE}
+
 s1 <- mycalc_function(v1, v2, "sum")
+s1
+
 d1 <- mycalc_function(v1, v2, "divide")
+d1
+
 s2 <- mycalc_function(v2, v3, "sum")
+s2
+
 d2 <- mycalc_function(v2, v3, "divide")
+d2
+
 s3 <- mycalc_function(v1, v3, "sum")
+s3
+
 d3 <- mycalc_function(v1, v3, "divide")
+d3
+
 s4 <- mycalc_function(m1, m1, "sum")
+s4
+
 d4 <- mycalc_function(m1, m1, "divide")
+d4
+
 s5 <- mycalc_function(m1, m2, "sum")
+s5
+
 d5 <- mycalc_function(m1, m2, "divide")
+d5
+
 s6 <- mycalc_function(m2, m3, "sum")
+s6
+
 d6 <- mycalc_function(m2, m3, "divide")
+d6
 ```
 
-## More Calculations
+## More Complex Calculations
+
+-The following calculations highlights both how flexible the function is and the power of indexing. 
+
+- b1 through b3 and b4 through b6 highlight the same operations. b1 through b3 uses the mycalc_function to find its results whereas b4 through b6 accomplish this independent of the mycalc_function.
+
+- b1 and b4 index individual integers in the dataframe and consequently output a single value.
+
+- b2 and b5 effectively square the numeric values of the database by indexing all of them and multiplying them by themselves
+
+- b3 and b6 are more selective. By using DF$grp == "E" I can call only rows that have the character "E" to be used in the divide function.
+
 
 ```{r, error= TRUE}
+# with no name given in the assignment I have chosen to name these calculations as 
+# "b#" as a place holder.
+
 b1 <- mycalc_function(DF[1,1], DF[1,2], "multiply")
+b1
+
 b2 <- mycalc_function(DF[1:10, 1:3], DF[1:10, 1:3], "multiply")
+b2
+
 b3 <- mycalc_function(DF[DF$grp == "E", c("a", "b")], DF[DF$grp == "E", c("c")], "divide")
+b3
+
 b4 <- (DF[1,1] * DF[1,2])
+b4
+
 b5 <- DF[1:10, 1:3] * DF[1:10, 1:3]
+b5
+
 b6 <- DF[DF$grp == "E", c("a", "b")] / DF[DF$grp == "E", c("c")] 
+b6
+
 ```
+
+## Showcasing *apply
+
+Apply functions are specialized for loops. Thus, they apply a function to each element in a given vector. l is the list that will be used for this function. In a1, this is clearly observed as the sum function is applied to every component of list l. In a2 and a3, the same iteration over the elements of l are happening however this time we use an anonmous function to be able to multiply the elements of l by v2.
+
 
 ```{r, error= TRUE}
 l <- list(v1, m1, m2)
-myfunc <- lapply(1:length(l), function(x) mycalc_function(l[[x]], v2, "multiply"))
-myfunc_2 <- sapply(1:length(l), function(x) mycalc_function(l[[x]], v2, "multiply"))
+l
+
+a1 <- lapply(l, sum)
+a1
+
+a2 <- lapply(1:length(l), function(x) mycalc_function(l[[x]], v2, "multiply"))
+a2
+
+a3 <- sapply(1:length(l), function(x) mycalc_function(l[[x]], v2, "multiply"))
+a3
+```
+
 ```
 
