@@ -20,8 +20,8 @@ library(gbk346)
 This is a vignette explaining how to use the mycalc_functon. The mycalc_function featured below is a basic calculator which adds, subtracts, multiplies, and divides. As observed below it takes two inputs (x & y) which can be numbers (integer or non), vectors, matrices, dataframes or a combination of the aforementioned. 
 
 ```{r, eval=FALSE}
-# this is the function.  Enter inputs in x and y. Then choose "sum", "subtract", 
-# "multiply" or "divide"
+# this is the function.  Enter inputs in x and y. Then operationalize it by choosing 
+#"sum", "subtract", "multiply" or "divide"
 mycalc_function <- function(x, y, fun)
 ```
 
@@ -44,7 +44,7 @@ mycalc_function <- function(x, y, fun) {
 ```
 
 ## Creating Vectors
-  -The following are vectors which will later be used later to test the mycalc_function.
+  -The following are vectors which will later be used to test the mycalc_function.
 ```{r, echo=TRUE, error=TRUE}
 #a is the length of several vectors thus it will be used as a place holder
 a = 20
@@ -68,6 +68,7 @@ v4
 
 ## Creating Matrices
   -The following are matrices which will later be used to test the mycalc_function.
+  
 ```{r, error=TRUE}
 m1 <- cbind(v1, v2)
 m1

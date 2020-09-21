@@ -7,7 +7,11 @@
 mycalc_function(x, y, fun)
 }
 \arguments{
-\item{calc}{Do you love cats? Defaults to TRUE.}
+\item{x}{this is the first input in the function. One can use a number, vector, matrix, or database}
+
+\item{y}{this is the second input in the function. One can use a number, vector, matrix, or database}
+
+\item{fun}{this is how one operationalizes the function allowing the user to add, subtract, multiply, and divide}
 }
 \description{
 This function allows you to perform basic calculations.
