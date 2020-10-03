@@ -1,9 +1,25 @@
 ---
-title: 'Module #4'
-author: "Garren Kalter"
-date: "9/29/2020"
-output: html_document
+title: "Module4"
+Author: "Garren Kalter"
+Date: "10/2/2020"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Module4}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
 ---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup, echo=FALSE}
+library(gbk346)
+```
+
 The following Vignette showcases various different facets and functions found throughout
 Module 4. This includes tibbles, joins, inputting .csv files, dplyr verbs, plots using ggplots 
 and grapics plot, and histograms among other concepts already introduced.
