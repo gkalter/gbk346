@@ -275,18 +275,19 @@ plot(st_geometry(ran_sample), col = "yellow", pch = 20, add = TRUE)
 
  roads_int <- roads_extreme_buff %>% 
   st_intersection(x = roads, y = roads_extreme_buff) %>% 
-  filter(roadid.1 == "T002") %>% 
-  mutate(dist_rd = units::set_units(st_length(roads_int), "km")) 
+  filter(roadid.1 == "T002") 
 roads_int
-  
-  
+```
 
+
+```{r, fig.width=6, fig.height=4, fig.align = "center"}
 #Plotting 
 plot(st_geometry(districts_alb), col = "grey")
 plot(st_geometry(roads_extreme_buff), col = "blue", add = TRUE)
 plot(st_geometry(roads_int), col = "red", add = TRUE)
 
+#%>%  mutate(dist_rd = units::set_units(st_length(roads_int), "km")) 
 #Total Distance ; could not get to function tried for several hours
-total_distance <- roads_int %>% summarize(tot_dist = count(dist_rd))
+#total_distance <- roads_int %>% summarize(tot_dist = count(dist_rd))
   
 ```
