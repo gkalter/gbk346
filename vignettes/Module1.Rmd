@@ -3,7 +3,7 @@ title: "Module 1"
 author: "Garren Kalter"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Assignment1}
+  %\VignetteIndexEntry{Module1}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---

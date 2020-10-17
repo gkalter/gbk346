@@ -4,7 +4,7 @@ author: "Garren Kalter"
 date: "10/17/2020"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{unit2-module1}
+  %\VignetteIndexEntry{Unit2-Module1}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
