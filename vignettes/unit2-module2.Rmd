@@ -1,0 +1,277 @@
+---
+title: "Unit2-Module2"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Unit2-Module2}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(gbk346)
+```
+
+
+```{r}
+#reading in necessary files
+library(geospaar)
+farmers <- system.file("extdata/farmer_spatial.csv", package = "geospaar") %>%   
+  read_csv() 
+roads <- system.file("extdata/roads.shp", package = "geospaar") %>% st_read
+districts <- system.file("extdata/districts.shp", package = "geospaar") %>% 
+  st_read
+```
+
+##  Stack S Masked by Districts_SS
+
+1. Create a subset of districts by extracting districts 22, 26, 53, and 54. Call it districts_ss. Use the extent of districts_ss (extent(districts_ss)) to define the extent of a new raster r, which should have a resolution of 0.1°. Use r as a template for creating two new rasters, rsamp and runi. rsamp should be filled with randomly selected integers ranging between 10 and 50. rrandn should be filled with random numbers drawn from a normal distribution (rnorm) that has a mean of 30 and standard deviation of 5. Use a seed of 1 in set.seed. Stack rsamp and runi (name the stack s), mask that by districts_ss, and plot s using plot_noaxes. (Ref: Chunks 1, 3, 4, 16)
+```{r, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+#Creating districts_ss
+#Use slice to pull out relevant districts
+districts_ss <- districts %>% slice(c(22, 26, 53, 54)) 
+districts_ss
+
+#Creatung r
+r <- raster(x = districts_ss, res = 0.1, crs = crs(districts))
+r
+
+#Creating rsamp using sample
+rsamp <- r
+set.seed(1)  
+values(rsamp) <- sample(1:50, ncell(rsamp), replace = TRUE)
+rsamp
+
+#creating runi using rnorm
+runi <- r
+set.seed(1)
+values(runi) <-  rnorm(ncell(runi), mean = 30, sd = 5)
+runi
+
+#Creating  a stack with runi and rsamp
+s <- stack(c(runi, rsamp))
+plot(s)
+
+#Mask 
+dist_mask <- mask(x = s, mask = districts_ss) 
+
+#Assigning the names for the plot
+stacktitle <- c("Runi", "Rsamp")
+
+#Plot
+par(mar = c(0, 0, 0, 4))
+plot_noaxes(dist_mask, box = FALSE, main = stacktitle)  
+
+```
+
+## Disaggregation, Calculation, and Plotting s2poly
+
+2. Disaggregate s[[1]] to a resolution of 0.025°, using bilinear interpolation, calling the result s2_1d. Select all areas of s2_1d that have values > 35, creating a new raster s2_1gt35. Set the values of s2_1gt35 that equal 0 to NA. Then convert the resulting raster into an sf object called s2poly. Plot the resulting polygons over s2_1d. (Ref: Chunks 10, 22, 37)
+
+```{r, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+#Disaggregating s
+s2_1d <- disaggregate(x = s[[1]], fact = 4, method = "bilinear")
+s2_1d
+
+#Calculations to make s2_1gt35
+s2_1gt35 <- (s2_1d > 35) 
+s2_1gt35[s2_1d == 0] <- NA
+s2_1gt35
+
+# Creating and plotting s2poly
+s2poly <- rasterToPolygons(x = s2_1gt35, dissolve = TRUE) %>% st_as_sf
+s2poly %>% plot()
+
+
+```
+
+## Farmers within Each Grid Cell
+
+3. Create a new grid from the extent of districts that has a resolution of 0.5° (call it zamr), assigning all cells a value of 1. Then recreate the farmersr dataset–a raster that sums the number of farmers falling within each grid cell. Mask the results using districts, and then plot the result onto a grey background of Zambia. (Ref: Chunk 8, 37)
+```{r,fig.width=4.75, fig.height=3.75, fig.align = "center"}
+# Creating zamr
+zamr <- raster(x = extent(districts), crs = crs(districts), res = 0.5)
+values(zamr) <- 1
+
+#Recreating fataset farmersr
+farmersr <- farmers %>% distinct(uuid, .keep_all = TRUE) %>% 
+  dplyr::select(x, y) %>% mutate(count = 1) %>% 
+  st_as_sf(coords = c("x", "y"), crs = 4326) %>% 
+  rasterize(x = ., y = zamr, field = "count", fun = sum) %>% print()
+
+#Plotting
+par(mar = c(0, 0, 1, 4))
+districts %>% st_union %>% 
+  plot(col = "grey", border = "grey", 
+       main = expression(paste("Farmers within each Grid Cell")))
+plot(farmersr, add = TRUE)
+
+
+```
+
+## Distance in Kilometers from Farmers
+
+4. Convert the rasterized farmers counts (farmersr) back into an sf points object farmersrpts. Create a new version of zamr at 0.05°, and then calculate the distance between these points and every other location in Zambia, creating an output grid of distances, called dist_to_farmers, which you mask by districts. Plot dist_to_farmers in kilometers (i.e. divide it by 1000) using plot_no_axes, with farmersrpts overlaid as black solid circles. (Ref: Chunks 8, 10, 47)
+
+```{r, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+#  Creating farmerspts
+farmerspts <- rasterToPoints(x = farmersr, spatial = TRUE) %>% st_as_sf
+
+# Adjusting the parameters of Zamr and assigning it to a new object
+zamr_new <- raster(x = extent(districts), crs = crs(districts), res = 0.05)
+zamr_new
+
+#Finding out distance from each of the Farmers
+set.seed(1)
+dist_Zam <- distanceFromPoints(object = zamr_new, xy = as_Spatial(farmerspts))
+dist_Zam
+
+# Mask
+mask_dist <- mask(x = dist_Zam, mask = districts)
+
+# Converting to Kilometers
+dist_to_farmers <- mask_dist/1000
+
+#PLot
+plot_noaxes(dist_to_farmers)
+plot(farmerspts, add = TRUE, pch = 16, col = "black")
+```
+
+## Using WorldClim to Map Mean Temperatures
+
+5. Use raster’s getData function to grab WorldClim’s mean temperature (“tmean”) dataset at a resolution of 2.5 (note this is not degrees, but minutes of a degree), and download it to somewhere on your local disk. That will give a global scale RasterBrick with 12 layers, with each layer representing the average monthly temperature for each grid cell on the planet. Crop that brick to the extent of districts, and then calculate the annual mean temperature for each cell. Mask the result using districts, and divide it by 10 to get temperature in °C in your final raster, zamtmean. Plot the result. (Ref: Chunk 17, 18, 48)
+
+```{r, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+
+#Reading in tmean
+wctmean <- getData("worldclim", var = "tmean", res = 2.5, 
+                   path = tempdir())
+
+#Cropping to Zambia
+zamtmean <- crop(wctmean, y = districts) 
+
+# Creating Mask
+zamtmean <- mask(calc(zamtmean, mean), mask = districts)
+
+#Converting to Celsius
+zamtmean <- (zamtmean / 10)
+
+#Plotting
+plot_noaxes(zamtmean)
+
+
+
+```
+
+## Mapping Mean Temperatures Categorically
+
+6. Classify the temperature data into three categories, low, medium, and high, using <20°, 20-24°, and >24° as the break points for determining the classes. Use the reclassify function rather than the cut function, which means you need to set up a reclassification matrix. Here cellStats is helping to find the values of tmin and tmax, which respectively define the lower bound of the “low” class and the upper bound of the “high” class. What are the functions floor and ceiling doing (answer this in your vignette)? Call the reclassified temperature raster zamtclass. Make the map using plot_noaxes with a categorical legend, and using the colors “blue”, “yellow2”, and “red” for the three classes. (Ref: Chunk 26, 39)
+
+```{r,fig.width=4.75, fig.height=3.75, fig.align = "center", error = TRUE}
+#Finding range of Zmantmean
+trng <- cellStats(zamtmean, range)
+trng
+
+# ceiling takes a single numeric argument x and returns a numeric vector containing the smallest integers not less than the corresponding elements of x.
+
+# floor takes a single numeric argument x and returns a numeric vector containing the largest integers not greater than the corresponding elements of x.
+
+reclmat <- cbind(c(floor(trng[1]), 20, 24), c(20, 24, ceiling(trng[2])), 1:3)
+zamtclass <- reclassify(zamtmean, rcl = reclmat)
+
+#Plot
+plot_noaxes(zamtclass, legend = FALSE, col = c("blue", "yellow2", "red"))
+#Legend
+legend(x = "bottomright", legend = c("low", "medium", "high"), 
+       fill = c("blue", "yellow2", "red"), bty = "n")
+```
+
+## Mapping Precipitation onto Zambian Temperature Zones
+
+7. Load up the zamprec dataset (data(zamprec)) that comes with geospaar, then calculate the mean precipitation within each temperature zone defined by zamtclass. Call the resulting matrix z. Map the mean zonal precipitation values in z onto each temperature zone (using the subs function with zamtclass as the target; remember that zonal returns a matrix, and that subs requires a data.frame or tibble for its y argument). Call the new raster zamprecz, and then plot it using plot_noaxes, with a custom legend (as done in Task 6), using the rounded zonal mean values (rounded) as the legend labels (legend = round(z$mean)). Use colors “yellow2”, “green3”, and “blue” for the three classes (Ref: Chunks 32, 33, 39)
+
+```{r,fig.width=4.75, fig.height=3.75, fig.align = "center", error = TRUE}
+# reading in data
+data(zamprec)
+
+# Matrix of Mean Precipitation in Each Zone
+z <- zonal(x = zamprec, z = zamtclass, fun = "mean", na.rm = "TRUE")
+z
+zmean <- round(z)
+zmean
+# Creating Zamprec
+zamprecz <- subs(x = zamtclass, y = data.frame(z), by = "zone")
+
+
+#Plotting
+plot_noaxes(zamprecz, legend = FALSE, col = c("yellow2", "green3", "blue"))
+
+legend(x = "bottomright", "legend =" round(z$mean), pch = 15, pt.cex =3, col = c("yellow2", "green3", "blue"))
+```
+
+## Mapping Aspect and Identifying Easterly and Westerly Aspects
+
+8. Use getData again to download the elevation raster for Zambia (call it dem). Aggregate it to the same resolution as zamtmean, using the default mean aggregation (the factor you need is 5). Call that dem5. Use terrain to calculate aspect from dem5 (call it aspect), selecting degrees as the output value. Then find all west-facing aspects (aspects >247.5 and <292.5), and all east facing aspects (>67.5 and <112.5), making new rasters respectively named west and east, e.g. west <- aspect > 247.5 & aspect < 292.5). Stack these together with aspect and make a three-panel plot with plot_noaxes with titles “Aspect”, “West”, and “East”. (Ref: Chunks 37, 42)
+
+```{r, fig.width=4.75, fig.height=3.75, fig.align = "center"}
+
+#Reading in Alt
+dem <- getData(name = "alt", country = "ZMB", 
+               path = tempdir())
+
+#Aggregating dem
+dem5 <- aggregate(x = dem, fact = 5)
+plot(dem5)
+
+#Creating Aspect
+aspect <- terrain(x = dem5, opt = 'aspect', unit = 'degrees') 
+plot_noaxes(aspect)
+
+#Assigning Western and Eastern Aspects
+west <- aspect > 247.5 & aspect < 292.5
+east <- aspect > 67.5 & aspect < 112.5
+
+#Stacking
+east_west <- stack(aspect, west, east)
+
+#Plot
+titles <- c("Aspect", "West", "East")
+plot_noaxes(east_west, main = titles)
+
+```
+
+## Creating a Tibble of Temperature at random Points with Easterly and Westerly Aspects
+
+9.Using a random seed of 1, create two random samples of 100 each. The first one should be collected from within the west-facing cells (i.e. only be drawn from cells in west that have a cell of one), and the second from east-facing cells. To do this, set the cells equal to 0 in east and west to NA (e.g. west[west == 0] <- NA). Once you have collected those, convert the resulting sp objects to sf, and use those two sets of points to extract temperature values from zamtmean into a tibble temp_stats.
+
+```{r, }
+#Assigning non-western points NA
+west[west == 0] <- NA
+
+#Random sampling of 100 points in west
+set.seed(1)
+westpts <- sampleRandom(x = west, size = 100, na.rm = TRUE, sp = TRUE) %>% st_as_sf 
+
+#Assigning non eastern poitns NA
+east[east == 0] <- NA
+
+#Random sampling of 100 points in east
+set.seed(1)
+eastpts <- sampleRandom(x = east, size = 100, na.rm = TRUE, sp = TRUE) %>% 
+  st_as_sf
+  
+  
+#Creating Tibble
+temp_stats <- bind_rows(
+  tibble(temp = raster::extract(zamtmean, westpts), dat = "West"), 
+  tibble(temp = raster::extract(zamtmean, eastpts), dat = "East")
+)
+temp_stats
+```
+
