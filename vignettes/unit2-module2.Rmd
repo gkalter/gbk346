@@ -202,17 +202,21 @@ data(zamprec)
 
 # Matrix of Mean Precipitation in Each Zone
 z <- zonal(x = zamprec, z = zamtclass, fun = "mean", na.rm = "TRUE")
-z
-zmean <- round(z)
-zmean
+print(z)
+
+
 # Creating Zamprec
 zamprecz <- subs(x = zamtclass, y = data.frame(z), by = "zone")
 
+#making z a dataframe to process the rounding in legends
+z <- data.frame(z)
 
 #Plotting
 plot_noaxes(zamprecz, legend = FALSE, col = c("yellow2", "green3", "blue"))
 
-legend(x = "bottomright", "legend =" round(z$mean), pch = 15, pt.cex =3, col = c("yellow2", "green3", "blue"))
+#LEgend
+legend(x = "bottomright", legend = round(z$mean),
+       fill = c("yellow2", "green3", "blue"))
 ```
 
 ## Mapping Aspect and Identifying Easterly and Westerly Aspects
