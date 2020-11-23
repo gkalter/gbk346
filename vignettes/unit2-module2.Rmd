@@ -17,7 +17,9 @@ knitr::opts_chunk$set(
 ```{r setup}
 library(gbk346)
 ```
+## Assignment #5
 
+The following vignette showcases various different geospatial tools within R packages. Featured below are stacks, bricks, disaggregation, aggregation,rasterizing data, getData, and basic calculations among other functions. These functions are then represented using the ggplot package or base r plotting functions.
 
 ```{r}
 #reading in necessary files
@@ -99,7 +101,7 @@ s2poly %>% plot()
 zamr <- raster(x = extent(districts), crs = crs(districts), res = 0.5)
 values(zamr) <- 1
 
-#Recreating fataset farmersr
+#Recreating dataset farmersr
 farmersr <- farmers %>% distinct(uuid, .keep_all = TRUE) %>% 
   dplyr::select(x, y) %>% mutate(count = 1) %>% 
   st_as_sf(coords = c("x", "y"), crs = 4326) %>% 
@@ -178,9 +180,9 @@ plot_noaxes(zamtmean)
 trng <- cellStats(zamtmean, range)
 trng
 
-# ceiling takes a single numeric argument x and returns a numeric vector containing the smallest integers not less than the corresponding elements of x.
+# ceiling takes a single numeric argument x and returns a numeric vector containing the smallest integers not less than the corresponding elements of x. (definition from help file)
 
-# floor takes a single numeric argument x and returns a numeric vector containing the largest integers not greater than the corresponding elements of x.
+# floor takes a single numeric argument x and returns a numeric vector containing the largest integers not greater than the corresponding elements of x. (definition from help file)
 
 reclmat <- cbind(c(floor(trng[1]), 20, 24), c(20, 24, ceiling(trng[2])), 1:3)
 zamtclass <- reclassify(zamtmean, rcl = reclmat)
@@ -277,5 +279,38 @@ temp_stats <- bind_rows(
   tibble(temp = raster::extract(zamtmean, eastpts), dat = "East")
 )
 temp_stats
+```
+
+## Extra Credit
+
+Extract the centroids from each district in districts (call it dcent), and reproject the points to Albers, using the st_crs(roads). Reproject zamtmean to Albers also, making the new resolution (5 km, i.e. 5000 m), using bilinear interpolation (call it zamtmeanalb). Then use dcent to extract the temperature values from zamtmeanalb (add the values to dcent as a new variable “temp” using mutate). Use gstat to create an IDW model (call it idw). To make the IDW work, which isn’t sf compliant, some extra work will be required, as shown below (this is the step needed after the extract of temperature values)
+
+```{r,error = TRUE}
+dcent <- raster(x = extent(districts), crs = crs(roads)) %>% st_centroid
+zantmeanalb <- projectRaster(zamtmean, res = 5000, crs = roads, method = "bilinear")
+
+dcent %>% distinct(uuid, .keep_all = TRUE) %>% 
+  dplyr::select(uuid, x, y) %>% st_as_sf(coords = c("x", "y")) %>% 
+  mutate(temp = raster::extract(x = zantmeanalb, y = .))
+
+dcent <- distinct(uuid, .keep_all = TRUE) %>% 
+  dplyr::select(x, y) %>% mutate(temp = raster::extract(zantmeanalb)) %>% 
+  st_as_sf(coords = c("x", "y"), crs = 4326) %>% 
+  rasterize(x = ., y = zamr2, field = "count", fun = sum)
+dcent <- mutate(temp = raster::extract(zantmeanalb))
+raster::extract(x = zamtmeanalb, y ) 
+districts %>% st_centroid %>% st_crs(roads) 
+
+
+dcent <- bind_cols(
+  dcent %>% data.frame %>% dplyr::select(-geometry) %>% as_tibble, 
+  st_coordinates(dcent) %>% as_tibble
+) %>% rename(x = X, y = Y)
+
+idw <- gstat(id = "temp", formula = rain ~ 1, locations = ~x + y, 
+                 data = rainsamp)
+idwr <- interpolate(object = r, model = idw)
+idwrmsk <- mask(x = idwr, mask = zantmeanalb)
+
 ```
 
